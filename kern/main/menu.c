@@ -72,10 +72,7 @@
  * It copies the program name because runprogram destroys the copy
  * it gets by passing it to vfs_open().
  */
-static
-void
-cmd_progthread(void *ptr, unsigned long nargs)
-{
+static void cmd_progthread(void *ptr, unsigned long nargs){
 	char **args = ptr;
 	char progname[128];
 	int result;
@@ -92,6 +89,7 @@ cmd_progthread(void *ptr, unsigned long nargs)
 	strcpy(progname, args[0]);
 
 	result = runprogram(progname);
+
 	if (result) {
 		kprintf("Running program %s failed: %s\n", args[0],
 			strerror(result));
@@ -130,7 +128,7 @@ static int common_prog(int nargs, char **args){
 			cmd_progthread /* thread function */,
 			args /* thread arg */, nargs /* thread arg */);
 
-	exit_code = proc_wait(proc);
+	exit_code = proc_wait(proc);	//necessaria per attendere la fine del processo creato
 
 	if (result) {
 		kprintf("thread_fork failed: %s\n", strerror(result));
@@ -718,10 +716,7 @@ static struct {
 /*
  * Process a single command.
  */
-static
-int
-cmd_dispatch(char *cmd)
-{
+static int cmd_dispatch(char *cmd){
 	struct timespec before, after, duration;
 	char *args[MAXMENUARGS];
 	int nargs=0;
@@ -817,9 +812,7 @@ menu_execute(char *line, int isargs)
  *      "mount sfs lhd0; bootfs lhd0; s"
  */
 
-void
-menu(char *args)
-{
+void menu(char *args){
 	char buf[64];
 
 	menu_execute(args, 1);

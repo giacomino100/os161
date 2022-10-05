@@ -112,10 +112,7 @@ thread_checkstack(struct thread *thread)
  * Create a thread. This is used both to create a first thread
  * for each CPU and to create subsequent forked threads.
  */
-static
-struct thread *
-thread_create(const char *name)
-{
+static struct thread *thread_create(const char *name){
 	struct thread *thread;
 
 	DEBUGASSERT(name != NULL);
@@ -353,9 +350,7 @@ thread_panic(void)
 /*
  * At system shutdown, ask the other CPUs to switch off.
  */
-void
-thread_shutdown(void)
-{
+void thread_shutdown(void){
 	/*
 	 * Stop the other CPUs.
 	 *

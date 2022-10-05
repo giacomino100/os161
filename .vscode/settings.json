@@ -1,0 +1,15 @@
+{
+    "files.associations": {
+        "vfs.h": "c",
+        "proc.h": "c",
+        "fcntl.h": "c",
+        "types.h": "c",
+        "errno.h": "c",
+        "current.h": "c",
+        "addrspace.h": "c",
+        "vm.h": "c",
+        "test.h": "c",
+        "syscall.h": "c",
+        "synch.h": "c"
+    }
+}

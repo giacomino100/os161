@@ -96,9 +96,7 @@ static struct proc *proc_create(const char *name){
  * Note: nothing currently calls this. Your wait/exit code will
  * probably want to do so.
  */
-void
-proc_destroy(struct proc *proc)
-{
+void proc_destroy(struct proc *proc){
 	/*
 	 * You probably want to destroy and null out much of the
 	 * process (particularly the address space) at exit time if
@@ -180,9 +178,7 @@ proc_destroy(struct proc *proc)
 /*
  * Create the process structure for the kernel.
  */
-void
-proc_bootstrap(void)
-{
+void proc_bootstrap(void){
 	kproc = proc_create("[kernel]");
 	if (kproc == NULL) {
 		panic("proc_create for kproc failed\n");
@@ -262,9 +258,7 @@ proc_addthread(struct proc *proc, struct thread *t)
  * the timer interrupt context switch, and any other implicit uses
  * of "curproc".
  */
-void
-proc_remthread(struct thread *t)
-{
+void proc_remthread(struct thread *t){
 	struct proc *proc;
 	int spl;
 
@@ -289,9 +283,7 @@ proc_remthread(struct thread *t)
  * some other method to make this safe. Otherwise the returned address
  * space might disappear under you.
  */
-struct addrspace *
-proc_getas(void)
-{
+struct addrspace *proc_getas(void){
 	struct addrspace *as;
 	struct proc *proc = curproc;
 

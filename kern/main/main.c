@@ -75,10 +75,7 @@ static const char harvard_copyright[] =
 /*
  * Initial boot sequence.
  */
-static
-void
-boot(void)
-{
+static void boot(void){
 	/*
 	 * The order of these is important!
 	 * Don't go changing it without thinking about the consequences.
