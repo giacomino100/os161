@@ -135,8 +135,7 @@ int uiomovezeros(size_t len, struct uio *uio);
  *      result = VOP_READ(vn, &myuio);
  *      ...
  */
-void uio_kinit(struct iovec *, struct uio *,
-	       void *kbuf, size_t len, off_t pos, enum uio_rw rw);
+void uio_kinit(struct iovec *, struct uio *, void *kbuf, size_t len, off_t pos, enum uio_rw rw);
 
 
 #endif /* _UIO_H_ */

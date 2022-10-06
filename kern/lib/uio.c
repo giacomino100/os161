@@ -38,9 +38,7 @@
  * See uio.h for a description.
  */
 
-int
-uiomove(void *ptr, size_t n, struct uio *uio)
-{
+int uiomove(void *ptr, size_t n, struct uio *uio){
 	struct iovec *iov;
 	size_t size;
 	int result;
@@ -147,11 +145,7 @@ uiomovezeros(size_t n, struct uio *uio)
 /*
  * Convenience function to initialize an iovec and uio for kernel I/O.
  */
-
-void
-uio_kinit(struct iovec *iov, struct uio *u,
-	  void *kbuf, size_t len, off_t pos, enum uio_rw rw)
-{
+void uio_kinit(struct iovec *iov, struct uio *u, void *kbuf, size_t len, off_t pos, enum uio_rw rw){
 	iov->iov_kbase = kbuf;
 	iov->iov_len = len;
 	u->uio_iov = iov;
