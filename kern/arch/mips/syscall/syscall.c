@@ -74,9 +74,7 @@
  * stack, starting at sp+16 to skip over the slots for the
  * registerized values, with copyin().
  */
-void
-syscall(struct trapframe *tf)
-{
+void syscall(struct trapframe *tf){
 	int callno;
 	int32_t retval;
 	int err = 0;
@@ -125,6 +123,18 @@ syscall(struct trapframe *tf)
 	    case SYS__exit:
 	        /* TODO: just avoid crash */
  	        sys__exit((int)tf->tf_a0);
+            break;
+		case SYS_waitpid:
+	        retval = sys_waitpid((pid_t)tf->tf_a0,
+								(userptr_t)tf->tf_a1,
+								(int)tf->tf_a2);
+			if (retval<0) err = ENOSYS; 
+			else err = 0;
+			break;
+	    case SYS_getpid:
+	        retval = sys_getpid();
+            if (retval<0) err = ENOSYS; 
+			else err = 0;
             break;
 #endif
 	    default:

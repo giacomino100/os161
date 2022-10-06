@@ -141,6 +141,9 @@ static int common_prog(int nargs, char **args){
 	 * once you write the code for handling that.
 	 */
 
+	proc_destroy(proc); //LAB4: corretto cosi?
+
+
 	return 0;
 }
 

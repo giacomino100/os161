@@ -24,6 +24,7 @@ void sys__exit(int status){
   
   struct proc *p = curproc;
   p->p_status = status & 0xff; /* just lower 8 bits returned */
+
   proc_remthread(curthread);
 
   #if USE_SEMAPHORE_FOR_WAITPID
@@ -45,4 +46,26 @@ void sys__exit(int status){
 
   panic("thread_exit returned (should not happen)\n");
   (void) status; // TODO: status handling
+}
+
+
+int sys_waitpid(pid_t pid, userptr_t statusp, int options) {
+  struct proc *p = proc_search_pid(pid); 
+  int s;
+  (void)options; /* not handled */
+  
+  if (p==NULL) return -1;
+  
+  s = proc_wait(p);
+  
+  if (statusp!=NULL) 
+    *(int*)statusp = s;
+  
+  return pid;
+
+}
+
+pid_t sys_getpid(void){
+  KASSERT(curproc != NULL);
+  return curproc->p_pid;
 }

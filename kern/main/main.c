@@ -140,9 +140,7 @@ static void boot(void){
 /*
  * Shutdown sequence. Opposite to boot().
  */
-static
-void
-shutdown(void)
+static void shutdown(void)
 {
 
 	kprintf("Shutting down.\n");
@@ -165,9 +163,7 @@ shutdown(void)
  * not because this is where system call code should go. Other syscall
  * code should probably live in the "syscall" directory.
  */
-int
-sys_reboot(int code)
-{
+int sys_reboot(int code){
 	switch (code) {
 	    case RB_REBOOT:
 	    case RB_HALT:

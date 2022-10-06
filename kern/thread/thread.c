@@ -767,9 +767,7 @@ thread_startup(void (*entrypoint)(void *data1, unsigned long data2),
  *
  * Does not return.
  */
-void
-thread_exit(void)
-{
+void thread_exit(void) {
 	struct thread *cur;
 
 	cur = curthread;
@@ -777,8 +775,19 @@ thread_exit(void)
 	/*
 	 * Detach from our process. You might need to move this action
 	 * around, depending on how your wait/exit works.
+	 * 
+	 * Problema: implementando la proc wait può capitare che la proc wait segnali la terminazione del 
+	 * thread ma ancora non ha sganciato il thread, quindi non puo avvenire la proc destroy
+	 * 
+	 * allora conviene spostare la proc_remthread subito prima la segnalazione
+	 * 
+	 * ATTENZIONE: non bisogna obbligare la thread_exit() a vedere sempre un thread "staccato"
+	 * la thread_exit viene chiamata anche in altri contesti
 	 */
-	proc_remthread(cur);
+	if (cur->t_proc->p_numthreads > 0){
+		proc_remthread(cur);
+	}
+	
 
 	/* Make sure we *are* detached (move this only if you're sure!) */
 	KASSERT(cur->t_proc == NULL);
