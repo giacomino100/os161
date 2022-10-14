@@ -75,9 +75,9 @@ struct uio {
 	unsigned          uio_iovcnt;	/* Number of iovecs */
 	off_t             uio_offset;	/* Desired offset into object */
 	size_t            uio_resid;	/* Remaining amt of data to xfer */
-	enum uio_seg      uio_segflg;	/* What kind of pointer we have */
+	enum uio_seg      uio_segflg;	/* What kind of pointer we have, kernel or user */
 	enum uio_rw       uio_rw;	/* Whether op is a read or write */
-	struct addrspace *uio_space;	/* Address space for user pointer */
+	struct addrspace *uio_space;	/* Address space for user pointer, for read operations there isn't */
 };
 
 

@@ -148,9 +148,7 @@ static int load_segment(struct addrspace *as, struct vnode *v,
  *
  * Returns the entry point (initial PC) for the program in ENTRYPOINT.
  */
-int
-load_elf(struct vnode *v, vaddr_t *entrypoint)
-{
+int load_elf(struct vnode *v, vaddr_t *entrypoint){
 	Elf_Ehdr eh;   /* Executable header */
 	Elf_Phdr ph;   /* "Program header" = segment header */
 	int result, i;
@@ -217,8 +215,18 @@ load_elf(struct vnode *v, vaddr_t *entrypoint)
 
 	for (i=0; i<eh.e_phnum; i++) {
 		off_t offset = eh.e_phoff + i*eh.e_phentsize;
+
+		/**
+		 * Predisposizione struttura dati per fare la lettura
+		*/
 		uio_kinit(&iov, &ku, &ph, sizeof(ph), offset, UIO_READ);
 
+
+		/**
+		 * Lettura vera e propria:
+		 * v -> address space
+		 * struct uio *ku -> contiene tutto ciò che è necessario per sapere che tipo di I/O va fatto e come
+		*/
 		result = VOP_READ(v, &ku);
 		if (result) {
 			return result;
@@ -241,6 +249,7 @@ load_elf(struct vnode *v, vaddr_t *entrypoint)
 			return ENOEXEC;
 		}
 
+		//Allocazione vera e propria: mette in corrispondenza indirizzi logici con indirizzi fisici
 		result = as_define_region(as,
 					  ph.p_vaddr, ph.p_memsz,
 					  ph.p_flags & PF_R,
@@ -299,6 +308,7 @@ load_elf(struct vnode *v, vaddr_t *entrypoint)
 		return result;
 	}
 
+	/* Return entry point */
 	*entrypoint = eh.e_entry;
 
 	return 0;

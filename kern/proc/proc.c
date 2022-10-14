@@ -52,12 +52,8 @@
 /* Include libreria sync.h per gestire la sincronizzazione*/
 #include <synch.h>
 
-/*
- * The process for the kernel; this holds all the kernel-only threads.
- */
-struct proc *kproc;
 
-
+/* Tabella dei processi attivi */
 #define MAX_PROC 100
 static struct _processTable {
   int active;           /* initial value 0 */
@@ -65,6 +61,12 @@ static struct _processTable {
   int last_i;           /* index of last allocated pid */
   struct spinlock lk;	/* Lock for this table */
 } processTable;
+
+/*
+ * The process for the kernel; this holds all the kernel-only threads.
+ */
+struct proc *kproc;
+
 
 
 /*
@@ -84,8 +86,6 @@ struct proc *proc_search_pid(pid_t pid) {
   	(void)pid;
   	return NULL;
 }
-
-
 
 /*
  * Create a proc structure.
@@ -114,6 +114,9 @@ static struct proc *proc_create(const char *name){
 
 	/* Creazione/setting tabella dei processi */
 	proc_init_waitpid(proc,name);
+
+	/* Laboratorio 5 */
+	bzero(proc->fileTable, OPEN_MAX*sizeof(struct openfile *));
 
 	return proc;
 }
@@ -353,8 +356,8 @@ int proc_wait(struct proc *proc){
 	int return_status;
 
 	//TESTING null e kproc
-	KASSERT(proc != NULL)
-	KASSERT(proc != kproc)
+	KASSERT(proc != NULL);
+	KASSERT(proc != kproc);
 
 	#if USE_SEMAPHORE_FOR_WAITPID
 		P(proc->p_sem);
@@ -432,4 +435,17 @@ static void proc_end_waitpid(struct proc *proc) {
 		cv_destroy(proc->p_cv);
 		lock_destroy(proc->p_lock);
 	#endif
+}
+
+
+void proc_file_table_copy(struct proc *psrc, struct proc *pdest) {
+  int fd;
+  for (fd=0; fd<OPEN_MAX; fd++) {
+    struct openfile *of = psrc->fileTable[fd];
+    pdest->fileTable[fd] = of;
+    if (of != NULL) {
+      /* incr reference count */
+      openfileIncrRefCount(of);
+    }
+  }
 }

@@ -24,13 +24,179 @@ struct openfile {
 
 struct openfile systemFileTable[SYSTEM_OPEN_MAX];
 
+
+/**
+ * Funzione per incrementare ref count
+*/
+void openfileIncrRefCount(struct openfile *of) {
+  if (of!=NULL)
+    of->countRef++;
+}
+
+
+
+#if USE_KERNEL_BUFFER
+
+static int file_read(int fd, userptr_t buf_ptr, size_t size) {
+    struct iovec iov;
+    struct uio ku;
+    int result, nread;
+    struct vnode *vn;
+    struct openfile *of;
+    void *kbuf;
+
+    if (fd<0 || fd>OPEN_MAX) 
+        return -1;
+    
+    of = curproc->fileTable[fd];
+    if (of==NULL) 
+        return -1;
+    
+    vn = of->vn;
+    if (vn==NULL) 
+        return -1;
+
+    kbuf = kmalloc(size);   //Allocazione buffer di kernel                         
+    uio_kinit(&iov, &ku, kbuf, size, of->offset, UIO_READ); //predispozione struttura che dice come fare I/O
+
+    result = VOP_READ(vn, &ku);
+    if (result) {
+        return result;
+    }
+
+    of->offset = ku.uio_offset;
+    nread = size - ku.uio_resid;
+    copyout(kbuf,buf_ptr,nread); //copia dal buffer di kernel al buffer user
+    kfree(kbuf);
+    return (nread);
+}
+
+static int file_write(int fd, userptr_t buf_ptr, size_t size) {
+    struct iovec iov;
+    struct uio ku;
+    int result, nwrite;
+    struct vnode *vn;
+    struct openfile *of;
+    void *kbuf;
+
+    if (fd<0 || fd>OPEN_MAX) 
+        return -1;
+    
+    of = curproc->fileTable[fd];
+    if (of == NULL) 
+        return -1;
+    
+    vn = of->vn;
+    if (vn == NULL) 
+        return -1;
+
+    //copia nel buffer di kernel il contenuto del buffer user
+    kbuf = kmalloc(size);
+    copyin(buf_ptr,kbuf,size);
+
+    //Scrittura + preparazione struttura
+    uio_kinit(&iov, &ku, kbuf, size, of->offset, UIO_WRITE);
+    result = VOP_WRITE(vn, &ku);
+    if (result) {
+        return result;
+    }
+    kfree(kbuf);
+    of->offset = ku.uio_offset;
+    nwrite = size - ku.uio_resid;
+    return (nwrite);
+}
+
+#else  
+
+
+/**
+ * FILE READ e FILE WRITE -> supporto per lettura in memoria user
+*/
+static int file_read(int fd, userptr_t buf_ptr, size_t size) {
+  struct iovec iov;
+  struct uio u;
+  int result;
+  struct vnode *vn;
+  struct openfile *of;
+
+  if (fd<0||fd>OPEN_MAX) 
+    return -1;
+  
+  of = curproc->fileTable[fd];
+  if (of==NULL) 
+    return -1;
+  
+  vn = of->vn;
+  if (vn==NULL) 
+    return -1;
+
+
+  iov.iov_ubase = buf_ptr;  //indirizzo dove andare a scrivere
+  iov.iov_len = size;       //Quanto dobbiamo scrivere
+
+  u.uio_iov = &iov;
+  u.uio_iovcnt = 1;
+  u.uio_resid = size;          // amount to read from the file
+  u.uio_offset = of->offset;
+  u.uio_segflg =UIO_USERISPACE;
+  u.uio_rw = UIO_READ;
+  u.uio_space = curproc->p_addrspace;
+
+  result = VOP_READ(vn, &u);
+  if (result) {
+    return result;
+  }
+
+  of->offset = u.uio_offset;
+  return (size - u.uio_resid);
+}
+
+static int file_write(int fd, userptr_t buf_ptr, size_t size) {
+  struct iovec iov;
+  struct uio u;
+  int result, nwrite;
+  struct vnode *vn;
+  struct openfile *of;
+
+  if (fd<0||fd>OPEN_MAX) 
+    return -1;
+  
+  of = curproc->fileTable[fd];
+  if (of==NULL) 
+    return -1;
+  
+  vn = of->vn;
+  if (vn==NULL) 
+    return -1;
+
+  iov.iov_ubase = buf_ptr;
+  iov.iov_len = size;
+
+  u.uio_iov = &iov;
+  u.uio_iovcnt = 1;
+  u.uio_resid = size;          // amount to read from the file
+  u.uio_offset = of->offset;
+  u.uio_segflg =UIO_USERISPACE;
+  u.uio_rw = UIO_WRITE;
+  u.uio_space = curproc->p_addrspace;
+
+  result = VOP_WRITE(vn, &u);
+  if (result) {
+    return result;
+  }
+  of->offset = u.uio_offset;
+  nwrite = size - u.uio_resid;
+  return (nwrite);
+}
+
+#endif
+
 int sys_write(int fd, userptr_t buf_ptr, size_t size){
     int i;
     char *p = (char*)buf_ptr;
 
     if(fd != STDOUT_FILENO && fd != STDERR_FILENO){
-        kprintf("La sys_write function supported only to stdout\n");
-        return -1;
+        return file_write(fd, buf_ptr, size);
     }
 
     for (i = 0; i < (int)size; i++){
@@ -45,8 +211,7 @@ int sys_read(int fd, userptr_t buf_ptr, size_t size){
     char *p = (char*)buf_ptr;
 
     if(fd != STDIN_FILENO){
-        kprintf("La sys_read function supported only to stdin\n");
-        return -1;
+        return file_read(fd, buf_ptr, size);
     }
 
     for (i = 0; i < (int)size; i++){
@@ -67,6 +232,7 @@ int sys_open(userptr_t path, int openflags, mode_t mode, int *errp){
     struct openfile *of = NULL; 	
     int result;
 
+    // APERTURA FILE
     result = vfs_open((char *)path, openflags, mode, &v);
     if (result) {
         *errp = ENOENT;

@@ -37,6 +37,7 @@
  */
 
 #include <spinlock.h>
+#include <limits.h>
 
 #define USE_SEMAPHORE_FOR_WAITPID 1
 
@@ -83,6 +84,8 @@ struct proc {
 		struct cv *p_cv;
 		strcut lock *p_lock;
 	#endif
+
+	struct openfile *fileTable[OPEN_MAX];
 				
 };
 

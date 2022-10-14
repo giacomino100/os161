@@ -45,9 +45,7 @@
  * memory.
  */
 
-void
-bzero(void *vblock, size_t len)
-{
+void bzero(void *vblock, size_t len){
 	char *block = vblock;
 	size_t i;
 

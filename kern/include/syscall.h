@@ -69,4 +69,9 @@ int sys___time(userptr_t user_seconds, userptr_t user_nanoseconds);
 	void sys__exit(int status);
 #endif
 
+struct openfile;
+void openfileIncrRefCount(struct openfile *of);
+int sys_open(userptr_t path, int openflags, mode_t mode, int *errp);
+int sys_close(int fd);
+
 #endif /* _SYSCALL_H_ */

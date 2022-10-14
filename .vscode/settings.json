@@ -15,6 +15,7 @@
         "memory": "c",
         "functional": "c",
         "tuple": "c",
-        "utility": "c"
+        "utility": "c",
+        "vnode.h": "c"
     }
 }

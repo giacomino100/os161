@@ -75,7 +75,7 @@
  * registerized values, with copyin().
  */
 void syscall(struct trapframe *tf){
-	int callno;
+	int callno;  //Numero della system call, usata per inviarla al trap frame
 	int32_t retval;
 	int err = 0;
 
@@ -98,7 +98,7 @@ void syscall(struct trapframe *tf){
 
 	switch (callno) {
 	    case SYS_reboot:
-		err = sys_reboot(tf->tf_a0);
+		err = sys_reboot(tf->tf_a0); 
 		break;
 	    case SYS___time:
 		err = sys___time((userptr_t)tf->tf_a0,(userptr_t)tf->tf_a1);

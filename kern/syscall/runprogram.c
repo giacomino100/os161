@@ -57,7 +57,9 @@ int runprogram(char *progname){
 	vaddr_t entrypoint, stackptr;
 	int result;
 
-	/* Open the file. */
+	/* Open the file.
+	 * v -> paramentro by reference della struct vnode
+	 */
 	result = vfs_open(progname, O_RDONLY, 0, &v);
 	if (result) {
 		return result;
