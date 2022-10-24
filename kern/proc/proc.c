@@ -438,6 +438,10 @@ static void proc_end_waitpid(struct proc *proc) {
 }
 
 
+/**
+ * PROC FILE TABLE COPY
+ * Itera su la fileTable di un processo e se lo trova incrementa il ref count
+*/
 void proc_file_table_copy(struct proc *psrc, struct proc *pdest) {
   int fd;
   for (fd=0; fd<OPEN_MAX; fd++) {

@@ -152,7 +152,7 @@ void uio_kinit(struct iovec *iov, struct uio *u, void *kbuf, size_t len, off_t p
 	u->uio_iovcnt = 1;
 	u->uio_offset = pos;
 	u->uio_resid = len;
-	u->uio_segflg = UIO_SYSSPACE;
+	u->uio_segflg = UIO_SYSSPACE;	//Si opera in System Space --> conversione sottraendo l'indirizzo 0x800000
 	u->uio_rw = rw;
 	u->uio_space = NULL;
 }

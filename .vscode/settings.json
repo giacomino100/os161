@@ -16,6 +16,10 @@
         "functional": "c",
         "tuple": "c",
         "utility": "c",
-        "vnode.h": "c"
+        "vnode.h": "c",
+        "limits.h": "c",
+        "lib.h": "c",
+        "copyinout.h": "c",
+        "unistd.h": "c"
     }
 }

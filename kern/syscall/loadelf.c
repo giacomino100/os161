@@ -160,9 +160,10 @@ int load_elf(struct vnode *v, vaddr_t *entrypoint){
 
 	/*
 	 * Read the executable header from offset 0 in the file.
+	 * UIO_READ -> si predispone la struttura per leggere
 	 */
-
 	uio_kinit(&iov, &ku, &eh, sizeof(eh), 0, UIO_READ);
+
 	result = VOP_READ(v, &ku);
 	if (result) {
 		return result;
@@ -217,10 +218,9 @@ int load_elf(struct vnode *v, vaddr_t *entrypoint){
 		off_t offset = eh.e_phoff + i*eh.e_phentsize;
 
 		/**
-		 * Predisposizione struttura dati per fare la lettura
+		 * Predisposizione struttura dati (ku) per fare la lettura
 		*/
 		uio_kinit(&iov, &ku, &ph, sizeof(ph), offset, UIO_READ);
-
 
 		/**
 		 * Lettura vera e propria:

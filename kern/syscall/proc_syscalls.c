@@ -23,8 +23,11 @@
 void sys__exit(int status){
   
   struct proc *p = curproc;
+
+  /* Salvataggio dentro la struttura del processo lo stato di ritorno per la wait pid*/
   p->p_status = status & 0xff; /* just lower 8 bits returned */
 
+  /* Viene sganciato il thread dal processo */
   proc_remthread(curthread);
 
   #if USE_SEMAPHORE_FOR_WAITPID
@@ -54,7 +57,8 @@ int sys_waitpid(pid_t pid, userptr_t statusp, int options) {
   int s;
   (void)options; /* not handled */
   
-  if (p==NULL) return -1;
+  if (p == NULL) 
+    return -1;
   
   s = proc_wait(p);
   

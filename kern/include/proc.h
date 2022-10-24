@@ -82,7 +82,7 @@ struct proc {
 		struct semaphore *p_sem;
 	#else
 		struct cv *p_cv;
-		strcut lock *p_lock;
+		struct lock *p_lock;
 	#endif
 
 	struct openfile *fileTable[OPEN_MAX];

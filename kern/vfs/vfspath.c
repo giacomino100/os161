@@ -110,9 +110,7 @@ int vfs_open(char *path, int openflags, mode_t mode, struct vnode **ret){
 }
 
 /* Does most of the work for close(). */
-void
-vfs_close(struct vnode *vn)
-{
+void vfs_close(struct vnode *vn){
 	/*
 	 * VOP_DECREF doesn't return an error.
 	 *
